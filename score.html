@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body ul li{
+            padding: 0;
+            margin: 0;
+        }
+        .container{
+            width: 150px;
+            margin: 100px auto;
+            cursor: pointer;
+        }
+        li{
+           display: inline-block;
+           width: 20px;
+           height: 20px;
+           list-style: none;
+           margin-left: 100px;
+           background: url("img/start.png") 0px 39px;
+           cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+   <ul class="container">
+       <li class="star1" title="很差"></li>
+       <li class="star2" title="较差"></li>
+       <li class="star3" title="一般"></li>
+       <li class="star4" title="良好"></li>
+       <li class="star5" title="优秀"></li>
+   </ul>
+</body>
+<script src="js/jQuery2.0.3.js"></script>
+<script>
+  var num = 2;
+
+
+ function onLight(num){
+     $('li').each(function(index){
+         if(index<num){
+             $(this).css('background-position','0px 0px');
+         }else{
+             $(this).css('background-position','0px 39px');
+         }
+     });
+ }
+
+  onLight(num);
+
+  //$(this).index() ;  选中一组元素  这样可以获取到 this 的 index 值
+  $('li').on('mouseover',function(){
+      onLight($(this).index()+1);
+  }).on('mouseout',function(){
+      onLight(num);
+  }).on('click', function(){
+      num = $(this).index()+1;
+      onLight(num);
+  });
+
+</script>
+</html>

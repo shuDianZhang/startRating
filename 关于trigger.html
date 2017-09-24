@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/jQuery2.0.3.js"></script>
+    <script>
+        $(function(){
+            var oTxt=$("input");//获取文本框
+            oTxt.trigger("select");//自动选中文本框
+            oTxt.bind("btn_click",function(){
+                //自定义事件
+                var txt=$(this).val();//获取自身内容
+                $("#div").html(txt);//显示在页面中
+            })
+            oTxt.trigger("btn_click");//自动触发自定义事件
+
+        })
+    </script>
+</head>
+<body>
+<input type="text" value="舒健你好啊">
+</body>
+</html>

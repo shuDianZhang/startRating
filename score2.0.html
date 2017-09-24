@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body ul li{
+            padding: 0;
+            margin: 0;
+        }
+        #rating1{
+            width: 150px;
+            margin: 100px auto;
+            cursor: pointer;
+        }
+        #rating2{
+            width: 150px;
+            margin: 100px auto;
+            cursor: pointer;
+        }
+        li{
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            list-style: none;
+            margin-left: 100px;
+            background: url("img/start.png") 0px 39px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<ul id="rating1">
+    <li class="star" title="很差"></li>
+    <li class="star" title="较差"></li>
+    <li class="star" title="一般"></li>
+    <li class="star" title="良好"></li>
+    <li class="star" title="优秀"></li>
+</ul>
+<ul id="rating2">
+    <li class="star" title="很差"></li>
+    <li class="star" title="较差"></li>
+    <li class="star" title="一般"></li>
+    <li class="star" title="良好"></li>
+    <li class="star" title="优秀"></li>
+</ul>
+</body>
+<script src="js/jQuery2.0.3.js"></script>
+<script>
+
+
+    var rating = (function(){
+        var init = function (el,num) {
+            var $item = $(el).find('.star');
+            onLight(num);
+            function onLight(num){
+                $item.each(function(index){
+                    if(index<num){
+                        $(this).css('background-position','0px 0px');
+                    }else{
+                        $(this).css('background-position','0px 39px');
+                    }
+                });
+            }
+            $(el).on('mouseover','li',function(){
+                onLight($(this).index()+1);
+            }).on('mouseout',function(){
+                onLight(num);
+            }).on('click','li',function(){
+                num = $(this).index()+1;
+                onLight(num);
+            });
+        }
+        return {
+            init:init
+        }
+    })();
+    rating.init('#rating1',2);
+    rating.init('#rating2',4);
+</script>
+</html>

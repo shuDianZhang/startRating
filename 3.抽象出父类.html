@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body ul li{
+            padding: 0;
+            margin: 0;
+        }
+        #rating1{
+            width: 150px;
+            margin: 100px auto;
+            cursor: pointer;
+        }
+        #rating2{
+            width: 150px;
+            margin: 100px auto;
+            cursor: pointer;
+        }
+        li{
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            list-style: none;
+            margin-left: 100px;
+            background: url("img/start.png") 0px 39px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<ul id="rating1">
+    <li class="star" title="很差"></li>
+    <li class="star" title="较差"></li>
+    <li class="star" title="一般"></li>
+    <li class="star" title="良好"></li>
+    <li class="star" title="优秀"></li>
+</ul>
+<ul id="rating2">
+    <li class="star" title="很差"></li>
+    <li class="star" title="较差"></li>
+    <li class="star" title="一般"></li>
+    <li class="star" title="良好"></li>
+    <li class="star" title="优秀"></li>
+</ul>
+</body>
+<script src="js/jQuery2.0.3.js"></script>
+<script>
+    var rating = (function () {
+
+        /*
+        * LightHalf.prototype = new Light();
+        * 使用此方法继承父类的方法，new Light(); 的时候，会执行了构造函数里面的东西，影响了性能
+        * 下面的 extend(); 方式可以避免
+        *
+        * */
+        var extend = function (subClass,superClass) {
+            var F = function () {};
+            F.prototype = superClass.prototype;
+            subClass.prototype = new F();
+            subClass.prototype.constructor = subClass;
+        }
+
+        /*
+        * 点亮星星（父类）
+        * */
+        var Light = function (el,options) {
+            this.$el = $(el);
+            this.$item = this.$el.find('.star');
+            this.opt = options;
+            this.selctEvent = 'mouseover',
+            this.add = 1;
+        }
+        Light.prototype.init = function () {
+            this.lightOn(this.opt.num);
+            if(!this.opt.readOnly){
+                this.bindEvent();
+            }
+        }
+        Light.prototype.lightOn = function (num) {
+            num = parseInt(num);
+            this.$item.each(function(index){
+                if(index<num){
+                    $(this).css('background-position','0px 0px');
+                }else{
+                    $(this).css('background-position','0px 39px');
+                }
+            });
+        }
+        Light.prototype.bindEvent = function (){
+            var _this = this;
+            _this.$el.on(_this.selctEvent,'li',function(e){
+                var $this = $(this),
+                    num=0;
+
+                _this.select(e,$this);
+                num = $(this).index()+_this.add;
+
+                (typeof _this.opt.select === 'function') && _this.opt.select.call(this,num,_this.$item.length);
+                _this.$el.trigger('select',[num,_this.$item.length]);
+            }).on('mouseout',function(){
+                _this.lightOn(_this.opt.num);
+            }).on('click','li',function(){
+                _this.opt.num = $(this).index()+_this.add;
+                _this.lightOn(_this.opt.num);
+                (typeof _this.opt.chosen === 'function') && _this.opt.chosen.call(this,_this.opt.num,_this.$item.length);
+                _this.$el.trigger('chosen',[_this.opt.num,_this.$item.length]);
+            });
+        }
+        Light.prototype.select = function () {
+            throw new Error('子类必须重写此方法');
+        }
+
+        /*
+         点亮整颗星星的构造函数
+         调用自己的属性和方法的时候，需要加上this
+        */
+        var LightEntire = function (el,options) {
+            Light.call(this,el,options);
+            this.selctEvent = 'mouseover';
+        }
+        extend(LightEntire,Light);
+        LightEntire.prototype.lightOn = function (num) {
+            Light.prototype.lightOn.call(this,num);
+        }
+        LightEntire.prototype.select = function () {
+            _this.add = 1;
+        }
+        /*
+        *
+        * 点亮半颗星星
+        * */
+        var LightHalf = function (el,options) {
+            Light.call(this,el,options);
+            this.selctEvent = 'mousemove';
+        }
+        extend(LightHalf,Light);
+        LightHalf.prototype.lightOn = function (num) {
+            var count = parseInt(num);
+            Light.prototype.lightOn.call(this,count);
+            if(count!=num){
+                this.$item.eq(count).css('background-position','0px 20px')
+            }
+        }
+        LightHalf.prototype.select = function (e,$this) {
+            if(e.pageX - $this.offset().left < $(this).width()/2){
+                this.add = 0.5;
+            }else{
+                this.add = 1;
+            }
+        }
+
+        //默认参数
+        var defaults = {
+            mode:'LightEntity',
+            num : 2,
+            readOnly : false,
+            select:function () {},
+            chosen:function () {}
+        }
+        var mode = {                     //一种简单的映射关系
+            'LightEntity':LightEntire,
+            'LightHalf':LightHalf
+        }
+
+
+
+
+        //初始化方法
+         var init = function (num,options) {
+              options = $.extend({},defaults,options);
+             /*
+              * 直接判断options.mode是否存在就可以预防用户乱输入
+              * （自己写的时候，首先想到的是遍历mode，逐个比较，这样太麻烦，直接判断其是否存在更方便）
+              * */
+              if(!mode[options.mode]){
+                  options.mode='LightEntity';
+              }
+//             var Half = new LightHalf(num,options);
+//             Half.init();
+              new mode[options.mode](num,options).init();
+
+         }
+         return {
+             init:init
+         }
+    })();
+
+    //调用方法
+    rating.init('#rating1',{
+        mode:'LightHalf',
+        num:2.5
+//        select:function(num,total){
+//            console.log(this);
+//            console.log(num+'/'+total);
+//        }
+    });
+    $('#rating1').on('select',function (e,num,total) {
+        console.log(num+'/'+total);
+    }).on('chosen',function (e,num,total) {
+        console.log(num+'/'+total);
+    });
+
+
+
+    rating.init('#rating2',{
+        num:3
+    });
+</script>
+</html>

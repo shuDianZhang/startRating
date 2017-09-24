@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body ul li{
+            padding: 0;
+            margin: 0;
+        }
+        #rating1{
+            width: 150px;
+            margin: 100px auto;
+            cursor: pointer;
+        }
+        #rating2{
+            width: 150px;
+            margin: 100px auto;
+            cursor: pointer;
+        }
+        li{
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            list-style: none;
+            margin-left: 100px;
+            background: url("img/start.png") 0px 39px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<ul id="rating1">
+    <li class="star" title="很差"></li>
+    <li class="star" title="较差"></li>
+    <li class="star" title="一般"></li>
+    <li class="star" title="良好"></li>
+    <li class="star" title="优秀"></li>
+</ul>
+<ul id="rating2">
+    <li class="star" title="很差"></li>
+    <li class="star" title="较差"></li>
+    <li class="star" title="一般"></li>
+    <li class="star" title="良好"></li>
+    <li class="star" title="优秀"></li>
+</ul>
+</body>
+<script src="js/jQuery2.0.3.js"></script>
+<script>
+    var rating = (function () {
+        /*
+         点亮整颗星星的构造函数
+         调用自己的属性和方法的时候，需要加上this
+        */
+        var LightEntire = function (el,options) {
+            this.$el = $(el);
+            this.$item = this.$el.find('.star');
+            this.opt = options;
+        }
+        LightEntire.prototype.init = function () {
+            this.lightOn(this.opt.num);
+            this.bindEvent();
+        }
+        LightEntire.prototype.lightOn = function (num) {
+            num = parseInt(num);
+            this.$item.each(function(index){
+                if(index<num){
+                    $(this).css('background-position','0px 0px');
+                }else{
+                    $(this).css('background-position','0px 39px');
+                }
+            });
+        }
+        LightEntire.prototype.bindEvent = function () {
+            var _this = this;
+            _this.$el.on('mouseover','li',function(){
+                _this.lightOn($(this).index()+1);
+            }).on('mouseout',function(){
+                _this.lightOn(_this.opt.num);
+            }).on('click','li',function(){
+                _this.opt.num = $(this).index()+1;
+                _this.lightOn(_this.opt.num);
+            });
+        }
+
+        //默认参数
+        var defaults = {
+            num : 2,
+            readOnly : false,
+            selects:function () {},
+            chosen:function () {}
+        }
+
+        //初始化方法
+         var init = function (num,options) {
+             //options 覆盖 defaults 并将值写入 {}  最后返回给 options
+             options = $.extend({},defaults,options);
+             var Entity = new LightEntire(num,options);
+             Entity.init();
+         }
+         return {
+             init:init
+         }
+    })();
+
+    //调用方法
+    rating.init('#rating1',{
+        num:2
+    });
+    rating.init('#rating2',{
+        num:3
+    });
+</script>
+</html>
